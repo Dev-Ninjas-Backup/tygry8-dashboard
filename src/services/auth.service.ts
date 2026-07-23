@@ -1,0 +1,49 @@
+import { axiosInstance } from "../lib/axios";
+import { UserProfile } from "../store/useAuthStore";
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponseData {
+  accessToken: string;
+  refreshToken: string;
+  user?: UserProfile;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: T;
+}
+
+export const authService = {
+  async login(payload: LoginPayload): Promise<ApiResponse<AuthResponseData>> {
+    const { data } = await axiosInstance.post<ApiResponse<AuthResponseData>>(
+      "/api/auth/login",
+      payload
+    );
+    return data;
+  },
+
+  async getProfile(): Promise<ApiResponse<UserProfile>> {
+    const { data } = await axiosInstance.get<ApiResponse<UserProfile>>(
+      "/api/auth/me"
+    );
+    return data;
+  },
+
+  async logout(refreshToken: string): Promise<void> {
+    await axiosInstance.post("/api/auth/logout", { refreshToken });
+  },
+
+  async refreshToken(refreshToken: string): Promise<ApiResponse<AuthResponseData>> {
+    const { data } = await axiosInstance.post<ApiResponse<AuthResponseData>>(
+      "/api/auth/refresh",
+      { refreshToken }
+    );
+    return data;
+  },
+};

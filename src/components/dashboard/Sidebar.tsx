@@ -5,14 +5,43 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
   Users,
   Building2,
-  Database,
-  BarChart3,
+  Layers,
+  TrendingUp,
   Settings,
   X,
 } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+
+const PieChartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={props.className}
+    {...props}
+  >
+    <path d="M12 12V2.5a9.5 9.5 0 1 0 9.5 9.5H12z" />
+    <path d="M14.5 10h7.45A9.5 9.5 0 0 0 14.5 2.55V10z" />
+  </svg>
+);
+
+const LogOutIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={props.className}
+    {...props}
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
 
 interface SidebarProps {
   mobileOpen?: boolean;
@@ -24,11 +53,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onMobileClose,
 }) => {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const navItems = [
     {
       name: "Dashboard",
-      icon: LayoutDashboard,
+      icon: PieChartIcon,
       href: "/",
       badge: null,
     },
@@ -37,7 +67,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Users,
       href: "/leads",
       badge: "7",
-      badgeColor: "bg-red-500 text-white",
     },
     {
       name: "Properties",
@@ -47,13 +76,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       name: "ATTOM Data",
-      icon: Database,
+      icon: Layers,
       href: "/attom-data",
       badge: null,
     },
     {
       name: "Analytics",
-      icon: BarChart3,
+      icon: TrendingUp,
       href: "/analytics",
       badge: null,
     },
@@ -76,24 +105,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         }`}
       >
         {/* Top Logo Section */}
-        <div className="flex items-center justify-between h-20 px-6 border-b border-slate-100 dark:border-slate-800/60">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 overflow-hidden transition-transform group-hover:scale-105">
+        <div className="flex items-center justify-between pt-6 pb-2 px-6">
+          <Link href="/" className="flex items-center group">
+            <div className="relative h-12 w-44 transition-transform group-hover:scale-105">
               <Image
                 src="/logo.png"
                 alt="Wisco Home Buyer Logo"
                 fill
                 priority
-                className="object-contain"
+                className="object-contain object-left dark:brightness-0 dark:invert"
               />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-lg tracking-wider leading-tight text-[#0f2347] dark:text-white uppercase font-sans">
-                WISCO
-              </span>
-              <span className="text-[10px] font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase -mt-0.5">
-                HOME BUYER
-              </span>
             </div>
           </Link>
 
@@ -110,10 +131,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Navigation Content */}
         <div className="flex-1 px-4 py-6 overflow-y-auto space-y-8">
           <div>
-            <p className="px-3 mb-3 text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
+            <p className="px-3 mb-3 text-[12px] font-bold tracking-wider text-[#5A6A85] dark:text-slate-400 uppercase">
               MENU
             </p>
-            <nav className="space-y-1.5">
+            <nav className="space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive =
@@ -126,29 +147,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     key={item.name}
                     href={item.href}
                     onClick={() => onMobileClose?.()}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
+                    className={`flex items-center justify-between px-4 py-3 rounded-md font-semibold text-[15px] transition-all duration-200 group border-l-[4px] ${
                       isActive
-                        ? "bg-[#0f2347] text-white shadow-md shadow-[#0f2347]/15 dark:bg-blue-600"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white"
+                        ? "bg-[#eaeff5] border-[#0f2347] text-[#0f2347] dark:bg-slate-800 dark:border-blue-500 dark:text-blue-400"
+                        : "border-transparent text-[#0f2347] dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/50"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3.5">
                       <Icon
-                        className={`w-4 h-4 ${
+                        className={`w-5 h-5 ${
                           isActive
-                            ? "text-white"
-                            : "text-slate-400 group-hover:text-slate-600 dark:text-slate-500"
+                            ? "text-[#0f2347] dark:text-blue-400"
+                            : "text-[#0f2347] dark:text-slate-300 group-hover:text-slate-900"
                         }`}
                       />
-                      <span>{item.name}</span>
+                      <span className="text-[15px] font-semibold tracking-tight">
+                        {item.name}
+                      </span>
                     </div>
 
                     {item.badge && (
-                      <span
-                        className={`px-2 py-0.5 text-xs font-bold rounded-full ${
-                          item.badgeColor || "bg-slate-200 text-slate-700"
-                        }`}
-                      >
+                      <span className="w-6 h-6 flex items-center justify-center text-xs font-bold rounded-full bg-[#ea3838] text-white shadow-xs">
                         {item.badge}
                       </span>
                     )}
@@ -164,38 +183,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Link
             href="/settings"
             onClick={() => onMobileClose?.()}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
+            className={`flex items-center justify-between px-4 py-3 rounded-lg font-semibold text-[15px] transition-all duration-200 group border-l-[4px] ${
               pathname === "/settings"
-                ? "bg-[#0f2347] text-white shadow-md shadow-[#0f2347]/15 dark:bg-blue-600"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-[#eaeff5] border-[#0f2347] text-[#0f2347] dark:bg-slate-800 dark:border-blue-500 dark:text-blue-400"
+                : "border-transparent text-[#0f2347] dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/50"
             }`}
           >
-            <Settings className="w-4 h-4" />
-            <span>Settings</span>
+            <div className="flex items-center gap-3.5">
+              <Settings className="w-5 h-5 text-[#0f2347] dark:text-slate-300 group-hover:text-slate-900" />
+              <span className="text-[15px] font-semibold tracking-tight">Settings</span>
+            </div>
           </Link>
 
           {/* User Card */}
           <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50">
             <div className="relative w-9 h-9">
-              <div className="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-sm overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
-                  alt="Naim Almas"
-                  fill
-                  className="object-cover"
-                />
+              <div className="w-9 h-9 rounded-full bg-[#0f2347] text-white flex items-center justify-center font-bold text-sm overflow-hidden">
+                {user?.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.name || user.email || "Admin User"}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  (user?.name?.[0] || user?.email?.[0] || "A").toUpperCase()
+                )}
               </div>
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
             </div>
 
             <div className="flex-1 min-w-0">
               <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                Naim Almas
+                {user?.name || user?.firstName || user?.email?.split("@")[0] || "Admin User"}
               </h4>
               <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
-                Super Admin
+                {user?.role ? user.role.replace("_", " ") : "Administrator"}
               </p>
             </div>
+
+            <button
+              onClick={() => logout()}
+              className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors cursor-pointer"
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOutIcon className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>

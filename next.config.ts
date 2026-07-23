@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "tygry8.saikat.com.bd",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };
