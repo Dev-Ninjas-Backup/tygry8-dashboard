@@ -7,12 +7,34 @@ import {
 } from "../services/leads.service";
 
 export const LEADS_QUERY_KEY = "leads";
+export const NEW_LEADS_COUNT_QUERY_KEY = [LEADS_QUERY_KEY, "new-count"] as const;
 
 export const useLeads = (params: QueryLeadsParams = {}) => {
   return useQuery({
     queryKey: [LEADS_QUERY_KEY, params],
     queryFn: () => leadsService.getLeads(params),
     staleTime: 60 * 1000,
+  });
+};
+
+/** Sidebar badge: count of leads still in NEW status. */
+export const useNewLeadsCount = () => {
+  return useQuery({
+    queryKey: NEW_LEADS_COUNT_QUERY_KEY,
+    queryFn: async () => {
+      const res = await leadsService.getLeads({
+        page: 1,
+        limit: 1,
+        status: "NEW",
+      });
+      return (
+        res.pagination?.total ??
+        (res as { meta?: { totalItems?: number } }).meta?.totalItems ??
+        0
+      );
+    },
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 };
 

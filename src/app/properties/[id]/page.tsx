@@ -3,119 +3,153 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { format } from "date-fns";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { AvmValuationCard } from "@/components/properties/AvmValuationCard";
 import { RecentComparablesCard } from "@/components/properties/RecentComparablesCard";
 import { OwnershipCard } from "@/components/properties/OwnershipCard";
-import { ArrowLeft, Layers } from "lucide-react";
+import { usePropertyDetail } from "@/hooks/usePropertiesQuery";
+import {
+  enrichmentLabel,
+  formatEnumLabel,
+  formatMoney,
+} from "@/services/properties.service";
+import { ArrowLeft, Layers, Loader2, AlertCircle, Clock } from "lucide-react";
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const propertyId = (params?.id as string) || "1";
+  const propertyId = (params?.id as string) || "";
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { data, isLoading, isError, refetch } = usePropertyDetail(propertyId);
 
-  // Mock Property ATTOM Data
-  const propertyData = {
-    id: propertyId,
-    address: "2451 N Murray Ave",
-    cityStateZip: "Milwaukee, WI 53211",
-    avm: {
-      estimatedValue: "$285,000",
-      taxAssessed: "$242,250",
-      lastSoldPrice: "$171,000",
-      lastSoldDate: "Jul 2021",
-      confidenceScore: 87,
-    },
-    ownership: {
-      ownerName: "Redacted for Privacy",
-      ownerType: "Individual",
-      occupancyStatus: "Owner Occupied",
-    },
-    comparables: [
-      {
-        id: "1",
-        address: "8893 Nearby St",
-        distance: "0.92 miles",
-        soldDate: "Apr 2, 2026",
-        soldPrice: "$264,693",
-      },
-      {
-        id: "2",
-        address: "1786 Nearby St",
-        distance: "1.36 miles",
-        soldDate: "May 11, 2026",
-        soldPrice: "$273,759",
-      },
-      {
-        id: "3",
-        address: "6724 Nearby St",
-        distance: "0.5 miles",
-        soldDate: "Feb 10, 2026",
-        soldPrice: "$295,682",
-      },
-    ],
+  const address = data?.street ?? "Property";
+  const cityStateZip = data
+    ? `${data.city}, ${data.state} ${data.zip}`
+    : "";
+  const enrichment = data?.enrichment;
+  const label = enrichmentLabel(enrichment?.status);
+  const BadgeIcon =
+    label === "Enriched" ? Layers : label === "Failed" ? AlertCircle : Clock;
+  const badgeClass =
+    label === "Enriched"
+      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+      : label === "Failed"
+        ? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
+        : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
+
+  const avm = {
+    estimatedValue: formatMoney(enrichment?.estimatedValue),
+    taxAssessed: formatMoney(enrichment?.taxAssessedValue),
+    lastSoldPrice: formatMoney(enrichment?.lastSoldPrice),
+    lastSoldDate: enrichment?.lastSoldDate
+      ? format(new Date(enrichment.lastSoldDate), "MMM yyyy")
+      : "—",
+    confidenceScore: enrichment?.confidenceScore ?? 0,
+    taxYear: enrichment?.taxAssessedYear,
   };
+
+  const ownership = {
+    ownerName: data?.lead?.sellerName ?? "—",
+    ownerType: formatEnumLabel(enrichment?.ownerType),
+    occupancyStatus: formatEnumLabel(enrichment?.occupancyStatus),
+  };
+
+  const comparables =
+    enrichment?.comparables?.map((c) => ({
+      id: c.id,
+      address: c.address,
+      distance: `${c.distanceMiles.toFixed(2)} miles`,
+      soldDate: format(new Date(c.soldDate), "MMM d, yyyy"),
+      soldPrice: formatMoney(c.soldPrice),
+    })) ?? [];
 
   return (
     <div className="flex min-h-screen bg-[#f4f6f8] dark:bg-[#0b1329]">
-      {/* Sidebar Component */}
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      {/* Main Content Area */}
       <div className="flex-1 lg:pl-64 flex flex-col min-w-0 transition-all">
-        {/* Top Header */}
         <Header
           onMobileMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)}
           breadcrumbs={[
             { label: "Wisco Home Buyer", href: "/" },
             { label: "Properties & ATTOM Data", href: "/properties" },
-            { label: propertyData.address },
+            { label: address },
           ]}
         />
 
-        {/* Body Container */}
         <main className="flex-1 p-4 md:p-8 max-w-[1600px] w-full mx-auto space-y-6">
-          {/* Top Navigation Bar */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/properties"
-              className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-xs transition-colors"
-              aria-label="Back to Properties"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                  {propertyData.address}
-                </h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-full">
-                  <Layers className="w-3 h-3" />
-                  ATTOM Verified
-                </span>
-              </div>
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
-                {propertyData.cityStateZip}
+          {isLoading ? (
+            <div className="py-16 flex items-center justify-center gap-2 text-xs text-slate-400">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading property…
+            </div>
+          ) : isError || !data ? (
+            <div className="py-16 text-center space-y-3">
+              <p className="text-xs text-slate-400">
+                Couldn&apos;t load this property.
               </p>
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 cursor-pointer"
+              >
+                Retry
+              </button>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/properties"
+                  className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-xs transition-colors"
+                  aria-label="Back to Properties"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Link>
 
-          {/* Grid Layout: Left AVM & Comparables (8 cols) & Right Ownership (4 cols) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-8 space-y-6">
-              <AvmValuationCard avm={propertyData.avm} />
-              <RecentComparablesCard comparables={propertyData.comparables} />
-            </div>
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                      {address}
+                    </h1>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-extrabold rounded-full ${badgeClass}`}
+                    >
+                      <BadgeIcon className="w-3 h-3" />
+                      {label === "Enriched" ? "ATTOM Verified" : label}
+                    </span>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
+                    {cityStateZip}
+                  </p>
+                </div>
+              </div>
 
-            <div className="lg:col-span-4">
-              <OwnershipCard ownership={propertyData.ownership} />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div className="lg:col-span-8 space-y-6">
+                  <AvmValuationCard
+                    avm={{
+                      estimatedValue: avm.estimatedValue,
+                      taxAssessed: avm.taxAssessed,
+                      lastSoldPrice: avm.lastSoldPrice,
+                      lastSoldDate: avm.lastSoldDate,
+                      confidenceScore: avm.confidenceScore,
+                    }}
+                    taxYear={avm.taxYear}
+                  />
+                  <RecentComparablesCard comparables={comparables} />
+                </div>
+
+                <div className="lg:col-span-4">
+                  <OwnershipCard ownership={ownership} />
+                </div>
+              </div>
+            </>
+          )}
         </main>
       </div>
     </div>

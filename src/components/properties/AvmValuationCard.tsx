@@ -13,9 +13,13 @@ export interface AvmMetrics {
 
 export interface AvmValuationCardProps {
   avm: AvmMetrics;
+  taxYear?: number | null;
 }
 
-export const AvmValuationCard: React.FC<AvmValuationCardProps> = ({ avm }) => {
+export const AvmValuationCard: React.FC<AvmValuationCardProps> = ({
+  avm,
+  taxYear,
+}) => {
   return (
     <div className="p-6 md:p-8 bg-[#0f2347] text-white rounded-3xl border border-[#1e3a6a] shadow-lg space-y-6">
       {/* Header */}
@@ -42,7 +46,7 @@ export const AvmValuationCard: React.FC<AvmValuationCardProps> = ({ avm }) => {
           <div className="space-y-2 pt-2 border-t border-white/10 text-xs">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-slate-300/80">
-                Tax Assessed (2025)
+                Tax Assessed{taxYear ? ` (${taxYear})` : ""}
               </span>
               <span className="font-extrabold text-white">{avm.taxAssessed}</span>
             </div>

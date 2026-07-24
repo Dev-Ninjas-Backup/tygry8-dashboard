@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Bell, Moon, Sun, Menu, ChevronRight, Settings } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import { useNotificationsSocket } from "../../hooks/useNotificationsSocket";
+import { NotificationsPanel } from "./NotificationsPanel";
 
 const LogOutIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -41,14 +43,24 @@ export const Header: React.FC<HeaderProps> = ({
   ],
 }) => {
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotificationsSocket();
   const [darkMode, setDarkMode] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setDropdownOpen(false);
+      }
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(target)
+      ) {
+        setNotificationsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -56,10 +68,13 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   useEffect(() => {
-    const savedTheme = typeof window !== "undefined" ? localStorage.getItem("theme") : null;
+    const savedTheme =
+      typeof window !== "undefined" ? localStorage.getItem("theme") : null;
     const isDark =
       savedTheme === "dark" ||
-      (!savedTheme && typeof document !== "undefined" && document.documentElement.classList.contains("dark"));
+      (!savedTheme &&
+        typeof document !== "undefined" &&
+        document.documentElement.classList.contains("dark"));
 
     if (isDark) {
       document.documentElement.classList.add("dark");
@@ -84,7 +99,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-20 px-4 md:px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors">
-      {/* Left: Mobile Toggle & Breadcrumbs */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMobileMenuToggle}
@@ -94,7 +108,6 @@ export const Header: React.FC<HeaderProps> = ({
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
           {breadcrumbs.map((item, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -123,20 +136,36 @@ export const Header: React.FC<HeaderProps> = ({
         </nav>
       </div>
 
-      {/* Right: Actions (Notifications, Theme Toggle, User Avatar) */}
       <div className="flex items-center gap-3 md:gap-4">
-        {/* Notification Bell */}
-        <button
-          className="relative p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors group"
-          aria-label="Notifications"
-        >
-          <Bell className="w-5 h-5 transition-transform group-hover:rotate-12" />
-          <span className="absolute top-2 right-2 flex items-center justify-center min-w-[16px] h-4 px-1 text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900">
-            3
-          </span>
-        </button>
+        <div className="relative" ref={notificationsRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setNotificationsOpen((open) => !open);
+              setDropdownOpen(false);
+            }}
+            className="relative p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors group cursor-pointer"
+            aria-label={
+              unreadCount > 0
+                ? `Notifications (${unreadCount} unread)`
+                : "Notifications"
+            }
+            aria-expanded={notificationsOpen}
+            aria-haspopup="dialog"
+          >
+            <Bell className="w-5 h-5 transition-transform group-hover:rotate-12" />
+            {unreadCount > 0 && (
+              <span className="absolute top-2 right-2 flex items-center justify-center min-w-[16px] h-4 px-1 text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
 
-        {/* Dark/Light Theme Toggle */}
+          {notificationsOpen && (
+            <NotificationsPanel onClose={() => setNotificationsOpen(false)} />
+          )}
+        </div>
+
         <button
           onClick={toggleDarkMode}
           className="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
@@ -149,13 +178,14 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </button>
 
-        {/* Vertical Separator */}
         <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
 
-        {/* User Profile Avatar & Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() => {
+              setDropdownOpen(!dropdownOpen);
+              setNotificationsOpen(false);
+            }}
             aria-label="User Profile Menu"
             className="flex items-center gap-2 group p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
@@ -173,10 +203,8 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </button>
 
-          {/* Profile Dropdown Menu Card */}
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-4 space-y-3 z-50 animate-in fade-in zoom-in-95 duration-150">
-              {/* Profile Summary */}
               <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="w-10 h-10 rounded-full bg-[#0f2347] text-white flex items-center justify-center font-bold text-base overflow-hidden shrink-0">
                   {user?.avatarUrl ? (
@@ -193,7 +221,10 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                    {user?.name || user?.firstName || user?.email?.split("@")[0] || "Admin User"}
+                    {user?.name ||
+                      user?.firstName ||
+                      user?.email?.split("@")[0] ||
+                      "Admin User"}
                   </h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                     {user?.email || "admin@wiscohomebuyer.com"}
@@ -204,7 +235,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
 
-              {/* Menu Actions */}
               <div className="space-y-1">
                 <Link
                   href="/settings"

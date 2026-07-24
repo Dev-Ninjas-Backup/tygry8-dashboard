@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import { useNewLeadsCount } from "../../hooks/useLeadsQuery";
 
 const PieChartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -54,19 +55,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { data: newLeadsCount = 0 } = useNewLeadsCount();
 
   const navItems = [
     {
       name: "Dashboard",
       icon: PieChartIcon,
       href: "/",
-      badge: null,
+      badge: null as string | null,
     },
     {
       name: "Leads",
       icon: Users,
       href: "/leads",
-      badge: "7",
+      badge:
+        newLeadsCount > 0
+          ? newLeadsCount > 99
+            ? "99+"
+            : String(newLeadsCount)
+          : null,
     },
     {
       name: "Properties",

@@ -19,6 +19,10 @@ declare module "lucide-react" {
   export const X: LucideIcon;
   export const XIcon: LucideIcon;
   export const Bell: LucideIcon;
+  export const BellRing: LucideIcon;
+  export const CheckCheck: LucideIcon;
+  export const AlertTriangle: LucideIcon;
+  export const Loader2: LucideIcon;
   export const Moon: LucideIcon;
   export const Sun: LucideIcon;
   export const Menu: LucideIcon;
@@ -36,7 +40,6 @@ declare module "lucide-react" {
   export const Search: LucideIcon;
   export const Eye: LucideIcon;
   export const MoreHorizontal: LucideIcon;
-  export const BellRing: LucideIcon;
   export const Handshake: LucideIcon;
   export const Clock: LucideIcon;
   export const Filter: LucideIcon;
@@ -53,9 +56,11 @@ declare module "lucide-react" {
   export const ShieldCheck: LucideIcon;
   export const UserCheck: LucideIcon;
   export const CheckCircle2: LucideIcon;
+  export const AlertCircle: LucideIcon;
   export const RefreshCw: LucideIcon;
   export const CheckCircle: LucideIcon;
   export const Camera: LucideIcon;
+  export const Trash2: LucideIcon;
   export const User: LucideIcon;
   export const Shield: LucideIcon;
   export const UserPlus: LucideIcon;

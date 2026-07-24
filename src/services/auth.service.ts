@@ -35,6 +35,17 @@ export const authService = {
     return data;
   },
 
+  async updateProfile(payload: {
+    name?: string;
+    avatarUrl?: string | null;
+  }): Promise<ApiResponse<UserProfile>> {
+    const { data } = await axiosInstance.patch<ApiResponse<UserProfile>>(
+      "/api/auth/me",
+      payload
+    );
+    return data;
+  },
+
   async logout(refreshToken: string): Promise<void> {
     await axiosInstance.post("/api/auth/logout", { refreshToken });
   },
