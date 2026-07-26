@@ -6,7 +6,7 @@ import { LucideIcon } from "lucide-react";
 export interface MetricCardProps {
   title: string;
   value: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
   badgeText: string;
   badgeTrend?: "positive" | "negative" | "neutral";
   subtext: string;

@@ -5,27 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Users,
-  Building2,
-  Layers,
-  TrendingUp,
-  Settings,
-  X,
-} from "lucide-react";
+  FaChartPie,
+  FaUsers,
+  FaBuilding,
+  FaLayerGroup,
+  FaChartLine,
+} from "react-icons/fa";
+import { Settings, X } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNewLeadsCount } from "../../hooks/useLeadsQuery";
-
-const PieChartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={props.className}
-    {...props}
-  >
-    <path d="M12 12V2.5a9.5 9.5 0 1 0 9.5 9.5H12z" />
-    <path d="M14.5 10h7.45A9.5 9.5 0 0 0 14.5 2.55V10z" />
-  </svg>
-);
 
 const LogOutIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -60,13 +48,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     {
       name: "Dashboard",
-      icon: PieChartIcon,
+      icon: FaChartPie,
       href: "/",
       badge: null as string | null,
     },
     {
       name: "Leads",
-      icon: Users,
+      icon: FaUsers,
       href: "/leads",
       badge:
         newLeadsCount > 0
@@ -77,19 +65,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       name: "Properties",
-      icon: Building2,
+      icon: FaBuilding,
       href: "/properties",
       badge: null,
     },
     {
       name: "ATTOM Data",
-      icon: Layers,
+      icon: FaLayerGroup,
       href: "/attom-data",
       badge: null,
     },
     {
       name: "Analytics",
-      icon: TrendingUp,
+      icon: FaChartLine,
       href: "/analytics",
       badge: null,
     },

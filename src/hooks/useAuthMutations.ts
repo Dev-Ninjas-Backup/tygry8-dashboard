@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { authService, LoginPayload } from "../services/auth.service";
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -33,7 +34,13 @@ export const useLoginMutation = () => {
     },
     onSuccess: ({ userProfile }) => {
       queryClient.setQueryData(AUTH_USER_QUERY_KEY, userProfile);
+      toast.success("Logged in successfully!");
       router.push("/");
+    },
+    onError: (err: any) => {
+      toast.error(
+        err?.response?.data?.message || err?.message || "Login failed. Please try again.",
+      );
     },
   });
 };
@@ -74,6 +81,7 @@ export const useLogoutMutation = () => {
     onSettled: () => {
       logout();
       queryClient.clear();
+      toast.success("Logged out successfully!");
       router.push("/login");
     },
   });
