@@ -15,7 +15,7 @@ import {
   formatSignedPercent,
   OverviewPeriod,
 } from "@/services/overview.service";
-import { Users, Building2, Handshake, Clock } from "lucide-react";
+import { FaUsers, FaFunnelDollar, FaHandshake, FaRegClock } from "react-icons/fa";
 
 export default function DashboardPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -59,12 +59,12 @@ export default function DashboardPage() {
                   ? "—"
                   : (metrics?.totalLeads.value ?? 0).toLocaleString()
               }
-              icon={Users}
+              icon={FaUsers}
               badgeText={formatSignedPercent(metrics?.totalLeads.changePercent ?? 0)}
               badgeTrend={trendPositive(metrics?.totalLeads.changePercent ?? 0)}
               subtext="vs last month"
               iconBgColor="bg-slate-100 dark:bg-slate-800"
-              iconColor="text-slate-700 dark:text-slate-300"
+              iconColor="text-[#0f2347] dark:text-slate-300"
             />
 
             <MetricCard
@@ -74,7 +74,7 @@ export default function DashboardPage() {
                   ? "—"
                   : formatCompactCurrency(metrics?.activePipeline.value ?? 0)
               }
-              icon={Building2}
+              icon={FaFunnelDollar}
               badgeText={formatSignedPercent(
                 metrics?.activePipeline.changePercent ?? 0,
               )}
@@ -83,7 +83,7 @@ export default function DashboardPage() {
               )}
               subtext={`${metrics?.activePipeline.dealCount ?? 0} active deals`}
               iconBgColor="bg-slate-100 dark:bg-slate-800"
-              iconColor="text-slate-700 dark:text-slate-300"
+              iconColor="text-[#0f2347] dark:text-slate-300"
             />
 
             <MetricCard
@@ -93,7 +93,7 @@ export default function DashboardPage() {
                   ? "—"
                   : (metrics?.dealsClosed.value ?? 0).toLocaleString()
               }
-              icon={Handshake}
+              icon={FaHandshake}
               badgeText={formatSignedPercent(
                 metrics?.dealsClosed.changePercent ?? 0,
               )}
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                   ? "—"
                   : `${(metrics?.avgCloseTime.valueDays ?? 0).toFixed(1)} days`
               }
-              icon={Clock}
+              icon={FaRegClock}
               badgeText={formatSignedDays(
                 metrics?.avgCloseTime.changeDays ?? 0,
               )}
