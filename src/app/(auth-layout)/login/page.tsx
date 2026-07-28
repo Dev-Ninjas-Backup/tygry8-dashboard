@@ -72,9 +72,13 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Matches seeded demo credentials in `tygry8-server` (see `src/config/configuration.ts`).
-  const DEMO_EMAIL = "naim@wiscohomebuyer.com";
+  // Matches seeded demo credentials in `tygry8-server`.
   const DEMO_PASSWORD = "ChangeMe123!";
+  const DEMO_USERS = [
+    { label: "Super Admin", email: "naim@wiscohomebuyer.com" },
+    { label: "Admin", email: "priya@wiscohomebuyer.com" },
+    { label: "Analyst", email: "marcus@wiscohomebuyer.com" },
+  ] as const;
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -95,8 +99,8 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = () => {
-    setEmail(DEMO_EMAIL);
+  const handleDemoLogin = (demoEmail: string) => {
+    setEmail(demoEmail);
     setPassword(DEMO_PASSWORD);
     setErrorMessage("");
   };
@@ -227,15 +231,25 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Demo Login Button */}
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={isLoading}
-                className="w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold text-sm transition-all duration-200 shadow-md shadow-slate-200/50 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
-              >
-                <span>Demo Login</span>
-              </button>
+              {/* Demo Login Buttons — one per seeded role */}
+              <div className="pt-1 space-y-2">
+                <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center">
+                  Quick demo login
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {DEMO_USERS.map((user) => (
+                    <button
+                      key={user.email}
+                      type="button"
+                      onClick={() => handleDemoLogin(user.email)}
+                      disabled={isLoading}
+                      className="py-2.5 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold text-[11px] sm:text-xs transition-all duration-200 cursor-pointer disabled:opacity-70"
+                    >
+                      {user.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Submit Button */}
               <button
