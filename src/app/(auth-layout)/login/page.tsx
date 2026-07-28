@@ -72,6 +72,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Matches seeded demo credentials in `tygry8-server` (see `src/config/configuration.ts`).
+  const DEMO_EMAIL = "naim@wiscohomebuyer.com";
+  const DEMO_PASSWORD = "ChangeMe123!";
+
   useEffect(() => {
     if (isAuthenticated) {
       router.replace("/");
@@ -89,6 +93,12 @@ export default function LoginPage() {
     if (!res.success) {
       setErrorMessage(res.message || "Invalid credentials. Please try again.");
     }
+  };
+
+  const handleDemoLogin = () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
+    setErrorMessage("");
   };
 
   return (
@@ -216,6 +226,16 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Demo Login Button */}
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={isLoading}
+                className="w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/70 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold text-sm transition-all duration-200 shadow-md shadow-slate-200/50 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+              >
+                <span>Demo Login</span>
+              </button>
 
               {/* Submit Button */}
               <button
