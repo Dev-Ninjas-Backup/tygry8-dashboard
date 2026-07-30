@@ -258,7 +258,7 @@ export const PropertiesTable: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="space-y-3 max-h-[560px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[560px] overflow-y-auto pr-2.5">
                     {properties.map((item) => {
                       const isSelected = item.id === selectedPropertyId;
                       return (

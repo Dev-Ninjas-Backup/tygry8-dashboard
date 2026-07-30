@@ -114,7 +114,7 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
   };
 
   return (
-    <div className="absolute right-0 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[22rem] rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-2xl dark:shadow-none z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-slate-500" />

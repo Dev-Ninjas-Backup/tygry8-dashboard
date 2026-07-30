@@ -108,27 +108,27 @@ export const Header: React.FC<HeaderProps> = ({
           <Menu className="w-5 h-5" />
         </button>
 
-        <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <nav className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
           {breadcrumbs.map((item, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
             return (
               <React.Fragment key={idx}>
                 {idx > 0 && (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400 hidden sm:inline" />
                 )}
                 {isLast ? (
-                  <span className="text-[#0f2347] dark:text-blue-400 font-bold underline underline-offset-4 decoration-2">
+                  <span className="text-[#0f2347] dark:text-blue-400 font-bold underline underline-offset-4 decoration-2 truncate max-w-[130px] sm:max-w-none">
                     {item.label}
                   </span>
                 ) : item.href ? (
                   <Link
                     href={item.href}
-                    className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                    className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors hidden sm:inline"
                   >
                     {item.label}
                   </Link>
                 ) : (
-                  <span>{item.label}</span>
+                  <span className="hidden sm:inline">{item.label}</span>
                 )}
               </React.Fragment>
             );
@@ -204,7 +204,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-4 space-y-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl shadow-slate-200/50 dark:shadow-none p-4 space-y-3 z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="w-10 h-10 rounded-full bg-[#0f2347] text-white flex items-center justify-center font-bold text-base overflow-hidden shrink-0">
                   {user?.avatarUrl ? (
@@ -230,7 +230,13 @@ export const Header: React.FC<HeaderProps> = ({
                     {user?.email || "admin@wiscohomebuyer.com"}
                   </p>
                   <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 rounded-md uppercase tracking-wider">
-                    {user?.role ? user.role.replace("_", " ") : "Super Admin"}
+                    {typeof user?.role === "string"
+                      ? user.role.replace("_", " ")
+                      : typeof user?.role === "object" && user?.role && "name" in user.role
+                      ? String((user.role as { name?: string }).name).replace("_", " ")
+                      : user?.role
+                      ? String(user.role)
+                      : "Super Admin"}
                   </span>
                 </div>
               </div>
