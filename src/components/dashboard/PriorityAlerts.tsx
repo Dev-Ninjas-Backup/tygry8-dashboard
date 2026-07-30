@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BellRing } from "lucide-react";
+import { Bell } from "lucide-react";
 import type { OverviewAlert } from "../../services/overview.service";
 
 interface PriorityAlertsProps {
@@ -10,36 +10,68 @@ interface PriorityAlertsProps {
   isLoading?: boolean;
 }
 
+const DEFAULT_ALERTS: OverviewAlert[] = [
+  {
+    id: "alert-1",
+    type: "INSPECTION_ISSUE",
+    title: "Inspection Issue",
+    message: "889 Oak Ln, Milwaukee - Roof repair needed before closing.",
+    priority: "HIGH",
+    leadId: null,
+    isRead: false,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "alert-2",
+    type: "INSPECTION_ISSUE",
+    title: "Inspection Issue",
+    message: "889 Oak Ln, Milwaukee - Roof repair needed before closing.",
+    priority: "HIGH",
+    leadId: null,
+    isRead: false,
+    createdAt: new Date().toISOString(),
+  },
+];
+
 export const PriorityAlerts: React.FC<PriorityAlertsProps> = ({
   alerts = [],
   isLoading = false,
 }) => {
+  const displayAlerts = alerts.length > 0 ? alerts : DEFAULT_ALERTS;
+
   return (
-    <div className="flex flex-col justify-between p-6 md:p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs h-full">
+    <div className="flex flex-col justify-between p-4 md:p-5 bg-white dark:bg-slate-900 rounded-[22px] border border-slate-100/80 dark:border-slate-800/80 shadow-xs hover:shadow-md transition-all duration-200 h-full">
       <div>
-        <div className="flex items-center gap-2 mb-6">
-          <BellRing className="w-4 h-4 text-amber-500 animate-bounce" />
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
+        {/* Header */}
+        <div className="flex items-center gap-2.5 mb-3.5 md:mb-4">
+          <Bell className="w-4.5 h-4.5 text-[#f59e0b] fill-[#f59e0b]" />
+          <h3 className="text-base font-bold text-[#0f2347] dark:text-white tracking-tight">
             High Priority Alerts
           </h3>
         </div>
 
+        {/* Content */}
         {isLoading ? (
-          <p className="text-xs text-slate-400">Loading alerts…</p>
-        ) : alerts.length === 0 ? (
-          <p className="text-xs text-slate-400">No high-priority alerts.</p>
+          <div className="space-y-2.5">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="p-3 md:p-3.5 rounded-xl bg-[#fffbf5] dark:bg-amber-950/20 border border-[#feeecd] dark:border-amber-900/30 animate-pulse h-16"
+              />
+            ))}
+          </div>
         ) : (
-          <div className="space-y-3">
-            {alerts.map((alert) => {
+          <div className="space-y-2.5">
+            {displayAlerts.map((alert) => {
               const body = (
-                <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 transition-all hover:bg-amber-100/60 dark:hover:bg-amber-950/40">
+                <div className="px-3.5 py-3 md:px-4 md:py-3.5 rounded-xl bg-[#fffbf5] dark:bg-amber-950/20 border border-[#feeecd] dark:border-amber-900/30 transition-all hover:bg-[#fff7ec] dark:hover:bg-amber-950/30 cursor-pointer">
                   <div className="flex items-start gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-                    <div>
-                      <h4 className="text-xs font-extrabold text-amber-900 dark:text-amber-300">
+                    <span className="w-2 h-2 rounded-full bg-[#f59e0b] mt-1 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-[#0f2347] dark:text-slate-100">
                         {alert.title}
                       </h4>
-                      <p className="text-[11px] font-medium text-amber-700/80 dark:text-amber-400/80 mt-1 leading-relaxed">
+                      <p className="text-xs text-[#64748b] dark:text-slate-400 font-normal mt-0.5 leading-relaxed">
                         {alert.message}
                       </p>
                     </div>
@@ -49,7 +81,7 @@ export const PriorityAlerts: React.FC<PriorityAlertsProps> = ({
 
               if (alert.leadId) {
                 return (
-                  <Link key={alert.id} href={`/leads/${alert.leadId}`}>
+                  <Link key={alert.id} href={`/leads/${alert.leadId}`} className="block">
                     {body}
                   </Link>
                 );

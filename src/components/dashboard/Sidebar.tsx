@@ -95,8 +95,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-in-out lg:translate-x-0 ${
+          mobileOpen
+            ? "translate-x-0 shadow-2xl opacity-100 visible"
+            : "-translate-x-full opacity-0 lg:opacity-100 invisible lg:visible"
         }`}
       >
         {/* Top Logo Section */}
@@ -213,7 +215,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {user?.name || user?.firstName || user?.email?.split("@")[0] || "Admin User"}
               </h4>
               <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
-                {user?.role ? user.role.replace("_", " ") : "Administrator"}
+                {typeof user?.role === "string"
+                  ? user.role.replace("_", " ")
+                  : typeof user?.role === "object" && user?.role && "name" in user.role
+                  ? String((user.role as { name?: string }).name).replace("_", " ")
+                  : user?.role
+                  ? String(user.role)
+                  : "Administrator"}
               </p>
             </div>
 

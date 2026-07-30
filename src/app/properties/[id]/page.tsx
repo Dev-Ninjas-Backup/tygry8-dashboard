@@ -39,20 +39,30 @@ export default function PropertyDetailPage() {
         : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300";
 
   const avm = {
-    estimatedValue: formatMoney(enrichment?.estimatedValue),
-    taxAssessed: formatMoney(enrichment?.taxAssessedValue),
-    lastSoldPrice: formatMoney(enrichment?.lastSoldPrice),
+    estimatedValue: enrichment?.estimatedValue
+      ? formatMoney(enrichment.estimatedValue)
+      : "—",
+    taxAssessed: enrichment?.taxAssessedValue
+      ? formatMoney(enrichment.taxAssessedValue)
+      : "—",
+    lastSoldPrice: enrichment?.lastSoldPrice
+      ? formatMoney(enrichment.lastSoldPrice)
+      : "—",
     lastSoldDate: enrichment?.lastSoldDate
       ? format(new Date(enrichment.lastSoldDate), "MMM yyyy")
       : "—",
     confidenceScore: enrichment?.confidenceScore ?? 0,
-    taxYear: enrichment?.taxAssessedYear,
+    taxYear: enrichment?.taxAssessedYear ?? null,
   };
 
   const ownership = {
     ownerName: data?.lead?.sellerName ?? "—",
-    ownerType: formatEnumLabel(enrichment?.ownerType),
-    occupancyStatus: formatEnumLabel(enrichment?.occupancyStatus),
+    ownerType: enrichment?.ownerType
+      ? formatEnumLabel(enrichment.ownerType)
+      : "—",
+    occupancyStatus: enrichment?.occupancyStatus
+      ? formatEnumLabel(enrichment.occupancyStatus)
+      : "—",
   };
 
   const comparables =
@@ -102,50 +112,59 @@ export default function PropertyDetailPage() {
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-3">
+              {/* Header Title Bar */}
+              <div className="flex items-start sm:items-center gap-3">
                 <Link
                   href="/properties"
-                  className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-xs transition-colors"
+                  className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-xs transition-colors shrink-0 mt-0.5 sm:mt-0"
                   aria-label="Back to Properties"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </Link>
 
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h1 className="text-lg sm:text-2xl font-bold text-[#0f2347] dark:text-white tracking-tight leading-snug">
                       {address}
                     </h1>
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-extrabold rounded-full ${badgeClass}`}
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-extrabold rounded-full shrink-0 ${badgeClass}`}
                     >
                       <BadgeIcon className="w-3 h-3" />
                       {label === "Enriched" ? "ATTOM Verified" : label}
                     </span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
+                  <p className="text-xs font-normal text-slate-400 dark:text-slate-500 mt-0.5">
                     {cityStateZip}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-8 space-y-6">
-                  <AvmValuationCard
-                    avm={{
-                      estimatedValue: avm.estimatedValue,
-                      taxAssessed: avm.taxAssessed,
-                      lastSoldPrice: avm.lastSoldPrice,
-                      lastSoldDate: avm.lastSoldDate,
-                      confidenceScore: avm.confidenceScore,
-                    }}
-                    taxYear={avm.taxYear}
-                  />
-                  <RecentComparablesCard comparables={comparables} />
+              {/* Main Content Grid */}
+              <div className="space-y-6">
+                {/* Top Row: AVM (8 cols) & Ownership (4 cols) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                  <div className="lg:col-span-8">
+                    <AvmValuationCard
+                      avm={{
+                        estimatedValue: avm.estimatedValue,
+                        taxAssessed: avm.taxAssessed,
+                        lastSoldPrice: avm.lastSoldPrice,
+                        lastSoldDate: avm.lastSoldDate,
+                        confidenceScore: avm.confidenceScore,
+                      }}
+                      taxYear={avm.taxYear}
+                    />
+                  </div>
+
+                  <div className="lg:col-span-4">
+                    <OwnershipCard ownership={ownership} />
+                  </div>
                 </div>
 
-                <div className="lg:col-span-4">
-                  <OwnershipCard ownership={ownership} />
+                {/* Bottom Row: Recent Comparables (Full Width 12 cols) */}
+                <div>
+                  <RecentComparablesCard comparables={comparables} />
                 </div>
               </div>
             </>

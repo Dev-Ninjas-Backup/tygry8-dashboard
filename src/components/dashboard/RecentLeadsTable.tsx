@@ -4,9 +4,11 @@ import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { Search, Eye, MoreHorizontal } from "lucide-react";
+import { Search, Eye, MoreHorizontal, Trash2, Home } from "lucide-react";
 import type { OverviewRecentLead } from "../../services/overview.service";
 import { formatCompactCurrency } from "../../services/overview.service";
+import { useDeleteLeadMutation } from "../../hooks/useLeadsQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://tygry8.saikat.com.bd";
@@ -85,6 +87,11 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
   isLoading = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+  const [leadToDelete, setLeadToDelete] = useState<OverviewRecentLead | null>(null);
+
+  const queryClient = useQueryClient();
+  const deleteLeadMutation = useDeleteLeadMutation();
 
   const filteredLeads = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -98,11 +105,20 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
     );
   }, [leads, searchTerm]);
 
+  const handleDeleteConfirm = (id: string) => {
+    deleteLeadMutation.mutate(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["overview"] });
+        setLeadToDelete(null);
+      },
+    });
+  };
+
   return (
-    <div className="p-6 md:p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xs">
+    <div className="p-5 md:p-6 bg-white dark:bg-slate-900 rounded-[22px] border border-slate-100/80 dark:border-slate-800/80 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+          <h3 className="text-lg font-extrabold text-[#0f2347] dark:text-white">
             Recent Leads
           </h3>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
@@ -141,7 +157,7 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
             No recent leads found.
           </p>
         ) : (
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[750px]">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 <th className="pb-3 px-2">LEAD</th>
@@ -164,6 +180,8 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
                     return "";
                   }
                 })();
+
+                const propertyImg = resolveImageUrl(lead.property?.imageUrl);
 
                 return (
                   <tr
@@ -192,16 +210,20 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
 
                     <td className="py-4 px-2">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800">
-                          {resolveImageUrl(lead.property?.imageUrl) ? (
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 flex items-center justify-center">
+                          {propertyImg ? (
                             <Image
-                              src={resolveImageUrl(lead.property?.imageUrl)!}
+                              src={propertyImg}
                               alt={lead.property?.title ?? "Property"}
                               fill
                               unoptimized
                               className="object-cover"
                             />
-                          ) : null}
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
+                              <Home className="w-5 h-5 stroke-[1.75] opacity-60" />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h5 className="font-bold text-slate-800 dark:text-slate-200">
@@ -254,7 +276,7 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
                     </td>
 
                     <td className="py-4 px-2 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1 relative">
                         <Link
                           href={`/leads/${lead.id}`}
                           className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 rounded-lg transition-colors"
@@ -262,13 +284,51 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
-                        <button
-                          type="button"
-                          className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                          aria-label="More Options"
-                        >
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
+
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveDropdownId(
+                                activeDropdownId === lead.id ? null : lead.id
+                              )
+                            }
+                            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                            aria-label="More Options"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+
+                          {activeDropdownId === lead.id && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-20"
+                                onClick={() => setActiveDropdownId(null)}
+                              />
+                              <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700/60 py-1.5 z-30 animate-in fade-in zoom-in-95 duration-100 text-left">
+                                <Link
+                                  href={`/leads/${lead.id}`}
+                                  onClick={() => setActiveDropdownId(null)}
+                                  className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
+                                >
+                                  <Eye className="w-3.5 h-3.5 text-slate-500" />
+                                  <span>View Details</span>
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveDropdownId(null);
+                                    setLeadToDelete(lead);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                  <span>Delete Lead</span>
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -278,6 +338,61 @@ export const RecentLeadsTable: React.FC<RecentLeadsTableProps> = ({
           </table>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {leadToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-2xl max-w-sm w-full p-5 space-y-4 text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                  Delete Lead
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Are you sure you want to delete lead for{" "}
+              <strong className="text-slate-900 dark:text-white">
+                {leadToDelete.sellerName}
+              </strong>
+              {leadToDelete.leadNumber ? ` (${leadToDelete.leadNumber})` : ""}?
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setLeadToDelete(null)}
+                disabled={deleteLeadMutation.isPending}
+                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteConfirm(leadToDelete.id)}
+                disabled={deleteLeadMutation.isPending}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                {deleteLeadMutation.isPending ? (
+                  <span>Deleting…</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

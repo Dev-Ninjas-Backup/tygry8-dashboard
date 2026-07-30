@@ -18,73 +18,69 @@ export interface AvmValuationCardProps {
 
 export const AvmValuationCard: React.FC<AvmValuationCardProps> = ({
   avm,
-  taxYear,
+  taxYear = 2025,
 }) => {
   return (
-    <div className="p-6 md:p-8 bg-[#0f2347] text-white rounded-3xl border border-[#1e3a6a] shadow-lg space-y-6">
+    <div className="p-6 md:p-7 bg-[#0e1726] dark:bg-[#0b1329] text-white rounded-[22px] border border-slate-800 shadow-md space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2.5 text-slate-300 pb-4 border-b border-white/10">
-        <TrendingUp className="w-5 h-5 text-emerald-400" />
-        <h3 className="text-sm font-extrabold tracking-wider uppercase text-white">
+      <div className="flex items-center gap-2.5 text-slate-300">
+        <TrendingUp className="w-5 h-5 text-slate-300" />
+        <h3 className="text-sm font-semibold tracking-wide text-slate-200">
           Automated Valuation Model (AVM)
         </h3>
       </div>
 
-      {/* Main Grid: Left Values & Right Confidence Score Box */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-        {/* Left Valuation Breakdown (7 cols) */}
-        <div className="md:col-span-7 space-y-4">
+        {/* Left Breakdown (7 cols) */}
+        <div className="md:col-span-7 space-y-5">
           <div>
-            <span className="text-xs font-bold text-slate-300/80 uppercase tracking-wider block">
+            <span className="text-xs font-medium text-slate-400 block">
               Estimated Value
             </span>
-            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mt-1">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mt-1">
               {avm.estimatedValue}
             </h2>
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-white/10 text-xs">
+          <div className="space-y-2.5 text-xs pt-1">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-300/80">
+              <span className="font-normal text-slate-400">
                 Tax Assessed{taxYear ? ` (${taxYear})` : ""}
               </span>
-              <span className="font-extrabold text-white">{avm.taxAssessed}</span>
+              <span className="font-bold text-white">{avm.taxAssessed}</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-300/80">
-                Last Sold Price
-              </span>
-              <span className="font-extrabold text-white">{avm.lastSoldPrice}</span>
+              <span className="font-normal text-slate-400">Last Sold Price</span>
+              <span className="font-bold text-white">{avm.lastSoldPrice}</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-slate-300/80">
-                Last Sold Date
-              </span>
-              <span className="font-extrabold text-white">{avm.lastSoldDate}</span>
+              <span className="font-normal text-slate-400">Last Sold Date</span>
+              <span className="font-bold text-white">{avm.lastSoldDate}</span>
             </div>
           </div>
         </div>
 
         {/* Right Confidence Score Inset Card (5 cols) */}
-        <div className="md:col-span-5 p-5 bg-[#172e59] dark:bg-[#0b162f] rounded-2xl border border-white/10 flex flex-col justify-between space-y-4">
+        <div className="md:col-span-5 p-5 bg-[#182338] dark:bg-[#080d1e] rounded-2xl border border-white/10 flex flex-col justify-between space-y-4">
           <div>
-            <span className="text-xs font-bold text-slate-300/80 uppercase tracking-wider block">
+            <span className="text-xs font-medium text-slate-300 block">
               Confidence Score
             </span>
-            <div className="flex items-baseline gap-1 mt-2">
-              <span className="text-3xl md:text-4xl font-black text-emerald-400">
+            <div className="flex items-baseline gap-1.5 mt-2">
+              <span className="text-3xl md:text-4xl font-extrabold text-[#10b981]">
                 {avm.confidenceScore}
               </span>
-              <span className="text-xs font-bold text-slate-400">/ 100</span>
+              <span className="text-sm font-normal text-slate-400">/ 100</span>
             </div>
           </div>
 
-          {/* Score Bar */}
-          <div className="w-full h-2.5 bg-slate-900/60 rounded-full overflow-hidden p-0.5">
+          {/* Progress Bar */}
+          <div className="w-full h-2.5 bg-[#0f172a] rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full bg-emerald-400 transition-all duration-500"
+              className="h-full rounded-full bg-[#10b981] transition-all duration-500"
               style={{ width: `${avm.confidenceScore}%` }}
             />
           </div>

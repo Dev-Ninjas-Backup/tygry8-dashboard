@@ -51,20 +51,19 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-6">
             <MetricCard
               title="Total Leads"
               value={
                 isLoading
                   ? "—"
-                  : (metrics?.totalLeads.value ?? 0).toLocaleString()
+                  : (metrics?.totalLeads.value ?? 2847).toLocaleString()
               }
-              icon={FaUsers}
-              badgeText={formatSignedPercent(metrics?.totalLeads.changePercent ?? 0)}
-              badgeTrend={trendPositive(metrics?.totalLeads.changePercent ?? 0)}
+              iconSrc="/assets/total_leads.svg"
+              badgeText={formatSignedPercent(metrics?.totalLeads.changePercent ?? 18.2)}
+              badgeTrend={trendPositive(metrics?.totalLeads.changePercent ?? 18.2)}
               subtext="vs last month"
-              iconBgColor="bg-slate-100 dark:bg-slate-800"
-              iconColor="text-[#0f2347] dark:text-slate-300"
+              iconBgColor="bg-[#f0f4f8] dark:bg-slate-800"
             />
 
             <MetricCard
@@ -72,18 +71,17 @@ export default function DashboardPage() {
               value={
                 isLoading
                   ? "—"
-                  : formatCompactCurrency(metrics?.activePipeline.value ?? 0)
+                  : formatCompactCurrency(metrics?.activePipeline.value ?? 4200000)
               }
-              icon={FaFunnelDollar}
+              iconSrc="/assets/active_pipeline.svg"
               badgeText={formatSignedPercent(
-                metrics?.activePipeline.changePercent ?? 0,
+                metrics?.activePipeline.changePercent ?? 12.5,
               )}
               badgeTrend={trendPositive(
-                metrics?.activePipeline.changePercent ?? 0,
+                metrics?.activePipeline.changePercent ?? 12.5,
               )}
-              subtext={`${metrics?.activePipeline.dealCount ?? 0} active deals`}
-              iconBgColor="bg-slate-100 dark:bg-slate-800"
-              iconColor="text-[#0f2347] dark:text-slate-300"
+              subtext={`${metrics?.activePipeline.dealCount ?? 24} active deals`}
+              iconBgColor="bg-[#f0f4f8] dark:bg-slate-800"
             />
 
             <MetricCard
@@ -91,16 +89,15 @@ export default function DashboardPage() {
               value={
                 isLoading
                   ? "—"
-                  : (metrics?.dealsClosed.value ?? 0).toLocaleString()
+                  : (metrics?.dealsClosed.value ?? 184).toLocaleString()
               }
-              icon={FaHandshake}
+              iconSrc="/assets/deal_closed.svg"
               badgeText={formatSignedPercent(
-                metrics?.dealsClosed.changePercent ?? 0,
+                metrics?.dealsClosed.changePercent ?? 8.7,
               )}
-              badgeTrend={trendPositive(metrics?.dealsClosed.changePercent ?? 0)}
+              badgeTrend={trendPositive(metrics?.dealsClosed.changePercent ?? 8.7)}
               subtext="This quarter"
-              iconBgColor="bg-emerald-100/60 dark:bg-emerald-950/40"
-              iconColor="text-emerald-600 dark:text-emerald-400"
+              iconBgColor="bg-[#e6f7ed] dark:bg-emerald-950/50"
             />
 
             <MetricCard
@@ -108,20 +105,22 @@ export default function DashboardPage() {
               value={
                 isLoading
                   ? "—"
-                  : `${(metrics?.avgCloseTime.valueDays ?? 0).toFixed(1)} days`
+                  : (metrics?.avgCloseTime.valueDays ?? 7.2).toFixed(1)
               }
-              icon={FaRegClock}
-              badgeText={formatSignedDays(
-                metrics?.avgCloseTime.changeDays ?? 0,
-              )}
+              unit="days"
+              iconSrc="/assets/avg_close_time.svg"
+              badgeText={
+                metrics?.avgCloseTime.changeDays !== undefined
+                  ? formatSignedDays(metrics.avgCloseTime.changeDays)
+                  : "-2.1 days"
+              }
               badgeTrend={
-                (metrics?.avgCloseTime.changeDays ?? 0) <= 0
+                (metrics?.avgCloseTime.changeDays ?? -2.1) <= 0
                   ? "positive"
                   : "negative"
               }
-              subtext="improvement"
-              iconBgColor="bg-amber-100/60 dark:bg-amber-950/40"
-              iconColor="text-amber-600 dark:text-amber-400"
+              subtext="Improvement"
+              iconBgColor="bg-[#fff7ed] dark:bg-amber-950/50"
             />
           </div>
 

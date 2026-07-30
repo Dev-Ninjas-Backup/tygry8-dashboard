@@ -67,10 +67,10 @@ export default function LeadDetailPage() {
       : "1,500 sqft",
     yearBuilt: prop?.yearBuilt ? String(prop.yearBuilt) : "N/A",
     lotSize: prop?.lotSizeAcres ? `${prop.lotSizeAcres} acres` : "N/A",
-    roofCondition: prop?.roofCondition ? prop.roofCondition.replace("_", " ") : "FAIR",
-    kitchenCondition: prop?.kitchenCondition ? prop.kitchenCondition.replace("_", " ") : "GOOD",
-    bathroomCondition: prop?.bathroomCondition ? prop.bathroomCondition.replace("_", " ") : "FAIR",
-    foundationCondition: prop?.foundationCondition ? prop.foundationCondition.replace("_", " ") : "GOOD",
+    roofCondition: typeof prop?.roofCondition === "string" ? prop.roofCondition.replace("_", " ") : "FAIR",
+    kitchenCondition: typeof prop?.kitchenCondition === "string" ? prop.kitchenCondition.replace("_", " ") : "GOOD",
+    bathroomCondition: typeof prop?.bathroomCondition === "string" ? prop.bathroomCondition.replace("_", " ") : "FAIR",
+    foundationCondition: typeof prop?.foundationCondition === "string" ? prop.foundationCondition.replace("_", " ") : "GOOD",
     otherRepairsNeeded: prop?.otherRepairsNeeded || null,
     photos: imageList,
   };
@@ -78,7 +78,7 @@ export default function LeadDetailPage() {
   const contactData = {
     phone: sellerPhone,
     email: sellerEmail,
-    timeline: lead?.timeline ? lead.timeline.replace("_", " ") : "Immediately",
+    timeline: typeof lead?.timeline === "string" ? lead.timeline.replace("_", " ") : "Immediately",
   };
 
   const valuationData = {
@@ -137,37 +137,37 @@ export default function LeadDetailPage() {
           ) : (
             <>
               {/* Top Lead Back Bar & Status Dropdown */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
+              <div className="flex items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <Link
                     href="/leads"
-                    className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-xs transition-colors"
+                    className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-xs transition-colors shrink-0"
                     aria-label="Back to Leads"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </Link>
 
-                  <div>
-                    <div className="flex items-center gap-2.5">
-                      <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">
                         {sellerName}
                       </h1>
-                      <span className="px-2.5 py-0.5 text-[11px] font-extrabold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 rounded-full uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 text-[10px] sm:text-[11px] font-extrabold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 rounded-full uppercase tracking-wider shrink-0">
                         {lead?.status}
                       </span>
                     </div>
-                    <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5">
+                    <p className="text-[11px] sm:text-xs font-semibold text-slate-400 dark:text-slate-500 mt-0.5 truncate">
                       {lead?.leadNumber} • Submitted {formattedSubmitted}
                     </p>
                   </div>
                 </div>
 
-                {/* Status Dropdown Selector */}
-                <div className="relative self-start sm:self-auto">
+                {/* Status Dropdown Selector (Aligned Right) */}
+                <div className="relative shrink-0">
                   <button
                     onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
                     disabled={updateStatusMutation.isPending}
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xs transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap"
                   >
                     <span>Status: {lead?.status}</span>
                     {updateStatusMutation.isPending ? (
@@ -178,21 +178,27 @@ export default function LeadDetailPage() {
                   </button>
 
                   {statusDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-44 p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-20 space-y-1">
-                      {statusOptions.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => handleStatusChange(opt)}
-                          className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                            lead?.status === opt
-                              ? "bg-[#0f2347] text-white dark:bg-blue-600"
-                              : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setStatusDropdownOpen(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-44 p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl z-20 space-y-1">
+                        {statusOptions.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => handleStatusChange(opt)}
+                            className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                              lead?.status === opt
+                                ? "bg-[#0f2347] text-white dark:bg-blue-600"
+                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
