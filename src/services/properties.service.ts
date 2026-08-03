@@ -24,6 +24,8 @@ export interface PropertyComparable {
   id: string;
   address: string;
   distanceMiles: number;
+  latitude: number;
+  longitude: number;
   soldDate: string;
   soldPrice: number;
 }

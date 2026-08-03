@@ -70,6 +70,9 @@ export default function PropertyDetailPage() {
       id: c.id,
       address: c.address,
       distance: `${c.distanceMiles.toFixed(2)} miles`,
+      distanceMiles: c.distanceMiles,
+      latitude: c.latitude,
+      longitude: c.longitude,
       soldDate: format(new Date(c.soldDate), "MMM d, yyyy"),
       soldPrice: formatMoney(c.soldPrice),
     })) ?? [];
@@ -164,7 +167,12 @@ export default function PropertyDetailPage() {
 
                 {/* Bottom Row: Recent Comparables (Full Width 12 cols) */}
                 <div>
-                  <RecentComparablesCard comparables={comparables} />
+                  <RecentComparablesCard
+                    comparables={comparables}
+                    subjectAddress={address}
+                    subjectLatitude={data?.latitude ?? null}
+                    subjectLongitude={data?.longitude ?? null}
+                  />
                 </div>
               </div>
             </>
